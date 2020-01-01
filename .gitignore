@@ -1,0 +1,4 @@
+.ansible
+config.yml
+secrets.yml
+vault_pass
