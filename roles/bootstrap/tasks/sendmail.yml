@@ -1,0 +1,12 @@
+---
+
+- name: Check sendmail service state
+  command: "sysrc -c sendmail_enable=NO"
+  register: sendmail_service_state
+  ignore_errors: yes
+  changed_when: no
+
+- name: Disable sendmail service
+  command: "sysrc sendmail_enable=NO"
+  when:
+    - sendmail_service_state.failed

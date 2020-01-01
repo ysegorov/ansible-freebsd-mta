@@ -1,0 +1,9 @@
+---
+
+- name: Install additional packages
+  pkgng:
+    name: "{{ packages }}"
+    state: present
+  when:
+    - packages is defined
+    - packages|length > 0

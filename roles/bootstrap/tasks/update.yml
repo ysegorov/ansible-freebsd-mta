@@ -1,0 +1,28 @@
+---
+
+- name: Fetch latest FreeBSD updates
+  command: freebsd-update --not-running-from-cron fetch
+  register: res_upd_fetch
+  changed_when: no
+
+- name: Print update fetch output
+  debug:
+    var: res_upd_fetch.stdout_lines
+
+- name: Install latest FreeBSD updates
+  command: freebsd-update install
+  register: res_upd_install
+  changed_when: no
+  when:
+    - "'no updates' not in res_upd_fetch['stdout']|lower"
+
+- name: Print update install output
+  debug:
+    var: res_upd_install.stdout_lines
+  when:
+    - "'no updates' not in res_upd_fetch['stdout']|lower"
+
+- name: Reboot server to load the new kernel
+  reboot:
+  when:
+    - "'no updates' not in res_upd_fetch['stdout']|lower"

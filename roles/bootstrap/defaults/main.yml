@@ -1,0 +1,12 @@
+---
+
+packages:
+  - htop
+  - vim-console
+  - wget
+  - curl
+  - bash
+  - bash-completion
+  - rsync
+  - vnstat
+  - ca_root_nss

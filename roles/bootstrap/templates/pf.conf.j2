@@ -1,0 +1,41 @@
+# {{ ansible_managed }}
+# see https://www.freebsd.org/doc/en_US.ISO8859-1/books/handbook/firewalls-pf.html
+#
+# See pf.conf(5) and /usr/share/examples/pf/
+
+ext_if = "{{ ansible_facts.default_ipv4.interface }}"
+
+table <martians> { 0.0.0.0/8 10.0.0.0/8 127.0.0.0/8 169.254.0.0/16     \
+           172.16.0.0/12 192.0.0.0/24 192.0.2.0/24 224.0.0.0/3 \
+           192.168.0.0/16 198.18.0.0/15 198.51.100.0/24        \
+           203.0.113.0/24 }
+#            203.0.113.0/24 !{{ "%s/%s"|format(ansible_facts.default_ipv4.network, ansible_facts.default_ipv4.netmask)|ipaddr('net') }} }
+
+tcp_ports_in = "{ www https smtp submission imaps {{ ansible_port }} }"
+tcp_ports_out = "{ www https smtp domain }"
+udp_ports = "{ domain ntp }"
+
+set block-policy drop
+set debug misc
+set loginterface $ext_if
+set optimization normal
+set state-policy if-bound
+
+set skip on lo
+
+scrub in all fragment reassemble no-df random-id max-mss 1440
+
+block all
+block in quick from no-route to any
+block in quick from urpf-failed to any
+
+pass quick on $ext_if inet proto icmp all icmp-type 8 code 0
+
+pass out quick on $ext_if inet proto tcp from $ext_if to any port $tcp_ports_out modulate state
+pass out quick on $ext_if inet proto udp from $ext_if to any port $udp_ports keep state
+
+pass in quick on $ext_if inet proto tcp from any to $ext_if port $tcp_ports_in modulate state
+
+block in quick on $ext_if from <martians> to any
+block in quick on $ext_if from any to 255.255.255.255
+block return out quick on $ext_if from any to <martians>

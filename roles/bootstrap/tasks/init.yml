@@ -1,0 +1,24 @@
+---
+
+- name: Bootstrap pkg
+  raw: "ASSUME_ALWAYS_YES=true pkg bootstrap"
+
+- name: Install python
+  raw: "ASSUME_ALWAYS_YES=true pkg install sqlite3 python3 py36-sqlite3"
+
+- name: Gather facts
+  setup:
+
+- name: Ensure we work with FreeBSD 12.x server
+  assert:
+    that:
+      - ansible_facts['distribution'] == 'FreeBSD'
+      - ansible_facts['distribution_major_version'] == '12'
+    fail_msg: "supported OS is FreeBSD 12.x only at the moment"
+
+- name: Debug ansible facts
+  debug:
+    var: ansible_facts
+  when:
+    - debug_facts is defined
+    - debug_facts

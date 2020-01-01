@@ -1,0 +1,33 @@
+---
+
+- name: Enable pf service
+  service:
+    name: pf
+    enabled: yes
+
+- name: Enable pflog service
+  service:
+    name: pflog
+    enabled: yes
+
+- name: Check pf service state
+  command: "pfctl -s Running"
+  register: pf_service_state
+  ignore_errors: yes
+  changed_when: no
+
+- name: Reboot server to be sure pf had been started at boot
+  reboot:
+  when:
+    - pf_service_state.failed
+
+- name: Copy pf.conf file
+  template:
+    src: pf.conf.j2
+    dest: /etc/pf.conf
+    owner: root
+    group: wheel
+    mode: 0600
+
+- name: Apply pf.conf
+  command: "pfctl -mf /etc/pf.conf"
