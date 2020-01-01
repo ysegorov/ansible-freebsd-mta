@@ -1,0 +1,57 @@
+---
+
+- name: Install Rspamd
+  pkgng:
+    name: "{{ rspamd_packages }}"
+    state: present
+
+- name: Ensure directory to store dkim keys esists
+  file:
+    path: "{{ dkim_path }}"
+    state: directory
+    mode: 0750
+    owner: "{{ dkim_path_owner }}"
+    group: "{{ dkim_path_group }}"
+
+- name: Generate dkim keys for domains
+  include_tasks: dkim.yml
+  vars:
+    domain: "{{ item.domain }}"
+  loop: "{{ vmail }}"
+
+- name: Ensure local.d configuration directory exists
+  file:
+    path: "{{ rspamd_conf_path }}"
+    state: directory
+    mode: 0755
+    owner: "{{ rspamd_conf_file_owner }}"
+    group: "{{ rspamd_conf_file_group }}"
+
+- name: Copy configuration files to local.d diretory
+  template:
+    src: "{{ item }}"
+    dest: "{{ rspamd_conf_path }}/{{ item|replace('.j2', '') }}"
+    mode: "{{ rspamd_conf_file_mode }}"
+    owner: "{{ rspamd_conf_file_owner }}"
+    group: "{{ rspamd_conf_file_group }}"
+  loop:
+    - worker-controller.inc.j2
+    - worker-normal.inc.j2
+    - worker-proxy.inc.j2
+    - redis.conf.j2
+    - dkim_signing.conf.j2
+    - classifier-bayes.conf.j2
+    - mx_check.conf.j2
+    - phishing.conf.j2
+    - replies.conf.j2
+    - rbl.conf.j2
+    - url_reputation.conf.j2
+    - url_tags.conf.j2
+  notify:
+    - restart rspamd
+
+- name: Ensure Rspamd is started and enabled
+  service:
+    name: rspamd
+    state: started
+    enabled: yes

@@ -1,0 +1,14 @@
+# {{ ansible_managed }}
+
+enabled = true;
+timeout = 10.0;
+
+exclude_domains = [
+    "https://rspamd.com/freemail/disposable.txt.zst",
+    "https://rspamd.com/freemail/free.txt.zst",
+    # "${CONFDIR}/maillist.inc",
+    # "${CONFDIR}/redirectors.inc",
+    "${CONFDIR}/dmarc_whitelist.inc",
+    "${CONFDIR}/surbl-whitelist.inc",
+    "${CONFDIR}/spf_dkim_whitelist.inc",
+];

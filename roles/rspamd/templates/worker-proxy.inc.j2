@@ -1,0 +1,15 @@
+# {{ ansible_managed }}
+
+milter = yes;
+
+bind_socket = "{{ rspamd_proxy_socket }} mode=0666 owner=nobody";
+
+timeout = 120s;
+
+upstream "local" {
+    default = yes;
+    self_scan = yes;
+    hosts = "localhost";
+}
+
+count = 2;

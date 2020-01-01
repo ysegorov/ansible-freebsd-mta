@@ -1,0 +1,22 @@
+---
+
+- name: Echo domain name
+  debug:
+    var: domain
+
+- name: Check if dkim private key already exists
+  stat:
+    path: "{{ dkim_path }}/{{ dkim_selector }}.{{ domain }}.key"
+  register: dkey_stat
+
+- name: Generate dkim private key for domain
+  shell: "rspamadm dkim_keygen -s '{{ dkim_selector }}' -b {{ dkim_key_size }} -d {{ domain }} -k '{{ dkim_path }}/{{ dkim_selector }}.{{ domain }}.key' >{{ dkim_path }}/{{ dkim_selector }}.{{ domain }}.pub"
+  when:
+    - not dkey_stat.stat.exists
+  notify:
+    - restart rspamd
+
+- name: Set proper dkim private key permissions
+  file:
+    path: "{{ dkim_path }}/{{ dkim_selector }}.{{ domain }}.key"
+    mode: "{{ dkim_keyfile_mode }}"

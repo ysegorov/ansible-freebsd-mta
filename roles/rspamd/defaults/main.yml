@@ -1,0 +1,25 @@
+---
+
+rspamd_packages:
+  - rspamd
+
+dkim_serial: "01"
+dkim_selector: "dkim{{ dkim_serial }}"
+
+dkim_path: "/var/db/rspamd/dkim"
+dkim_path_owner: root
+dkim_path_group: rspamd
+dkim_keyfile_mode: 0640
+
+dkim_key_size: 1024
+
+rspamd_conf_path: "/usr/local/etc/rspamd/local.d"
+rspamd_conf_file_owner: root
+rspamd_conf_file_group: wheel
+rspamd_conf_file_mode: 0644
+
+rspamd_controller_socket: "/var/run/rspamd/rspamd.sock"
+rspamd_proxy_socket: "/var/run/rspamd/milter.sock"
+
+rspamd_redis_db: 0
+
