@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+ansible-playbook $* -e @config.yml -e @secrets.yml playbook.yml
