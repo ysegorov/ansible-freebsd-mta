@@ -1,0 +1,20 @@
+---
+
+redis_maxmemory: 256mb
+redis_maxmemory_policy: volatile-lru
+
+redis_conf:
+  - key: bind
+    value: "127.0.0.1 ::1"
+    regexp: "^bind "
+  - key: port
+    value: 6379
+    regexp: "^port "
+  - key: maxmemory
+    value: "{{ redis_maxmemory }}"
+    regexp: "^maxmemory "
+    insertafter: "^#\\s*maxmemory "
+  - key: maxmemory-policy
+    value: "{{ redis_maxmemory_policy }}"
+    regexp: "^maxmemory-policy "
+    insertafter: "^# maxmemory-policy "

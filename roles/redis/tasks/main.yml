@@ -1,0 +1,22 @@
+---
+
+- name: Install Redis
+  pkgng:
+    name: redis
+    state: present
+
+- name: Update redis.conf configuration file
+  lineinfile:
+    path: /usr/local/etc/redis.conf
+    line: "{{ item.key }} {{ item.value }}"
+    regexp: "{{ item.regexp|default('skip') }}"
+    insertafter: "{{ item.insertafter|default('skip') }}"
+  loop: "{{ redis_conf }}"
+  notify:
+    - restart redis
+
+- name: Ensure Redis is started and enabled
+  service:
+    name: redis
+    state: started
+    enabled: yes
