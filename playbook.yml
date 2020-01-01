@@ -1,0 +1,31 @@
+---
+
+- hosts: mta
+  become: yes
+  become_method: su
+  gather_facts: no
+  pre_tasks:
+    - name: Ensure we have at least one domain to configure mta for
+      assert:
+        that:
+          - vmail is defined
+          - "vmail|length > 0"
+        fail_msg: "you must configure at least one domain, please check readme for instructions"
+    - name: Ensure we have postmaster email configured
+      assert:
+        that:
+          - postmaster is defined
+        fail_msg: "you must configure postmaster email, please check readme for instructions"
+  roles:
+    - role: bootstrap
+      tags:
+        - bootstrap
+    - role: redis
+      tags:
+        - redis
+    - role: rspamd
+      tags:
+        - rspamd
+    - role: acme
+      tags:
+        - acme
