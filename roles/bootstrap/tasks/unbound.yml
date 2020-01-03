@@ -16,7 +16,7 @@
     cmd: local-unbound-setup
     creates: /var/unbound/unbound.conf
 
-- name: Make sure local unbound is enabled and started
+- name: Make sure local unbound is started
   service:
     name: local_unbound
     state: started
