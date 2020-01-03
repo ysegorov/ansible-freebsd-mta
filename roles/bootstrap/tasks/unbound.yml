@@ -1,0 +1,22 @@
+---
+
+- name: Check local unbound service state
+  command: "sysrc -c local_unbound_enable=YES"
+  register: unbound_service_state
+  ignore_errors: yes
+  changed_when: no
+
+- name: Enable local unbound service
+  command: "sysrc local_unbound_enable=YES"
+  when:
+    - unbound_service_state.failed
+
+- name: Setup local unbound
+  command:
+    cmd: local-unbound-setup
+    creates: /var/unbound/unbound.conf
+
+- name: Make sure local unbound is enabled and started
+  service:
+    name: local_unbound
+    state: started
