@@ -16,7 +16,7 @@ acme_cert_home: "{{ acme_home }}/certs"
 acme_cert_file: "{{ acme_cert_home }}/{{ hostname }}/fullchain.cer"
 acme_log_file: "{{ acme_log_path }}/acme.sh.log"
 
-acme_install_path: /etc/acme.sh
+acme_install_path: /usr/local/etc/acme.sh
 acme_install_path_owner: "{{ acme_user }}"
 acme_install_path_group: mail
 acme_install_key_file: "{{ acme_install_path }}/{{ hostname }}/key.pem"
