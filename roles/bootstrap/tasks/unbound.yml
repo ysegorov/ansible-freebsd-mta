@@ -11,10 +11,19 @@
   when:
     - unbound_service_state.failed
 
-- name: Setup local unbound
+- name: Setup local unbound using default forwarders
   command:
     cmd: local-unbound-setup
     creates: /var/unbound/unbound.conf
+  when:
+    - not unbound_use_cloudflare_dns
+
+- name: Setup local unbound using Cloudflare dns as forwarders
+  command:
+    cmd: local-unbound-setup -t 1.1.1.1@853 1.0.0.1@853 2606:4700:4700::1111@853 2606:4700:4700::1001@853
+    creates: /var/unbound/unbound.conf
+  when:
+    - unbound_use_cloudflare_dns
 
 - name: Make sure local unbound is started
   service:

@@ -1,0 +1,29 @@
+#!/bin/sh
+## Updating the root zones
+## source https://forums.freebsd.org/threads/cloudflare-introduces-1-1-1-1-dns-resolver.65378/post-384544
+
+rm -f /tmp/root-hints.md5 /tmp/root-hints.sig /tmp/root-hints.zones
+/usr/bin/fetch -o /tmp/root-hints.md5   "https://www.internic.net/domain/named.cache.md5"
+/usr/bin/fetch -o /tmp/root-hints.sig   "https://www.internic.net/domain/named.cache.sig"
+/usr/bin/fetch -o /tmp/root-hints.zones "https://www.internic.net/domain/named.cache"
+if [ -f /tmp/root-hints.md5 ] && [ -f /tmp/root-hints.zones ]; then
+   author_md5=`/bin/cat /tmp/root-hints.md5`
+   actual_md5=`/sbin/md5 -q /tmp/root-hints.zones`
+   if [ "$author_md5" == "$actual_md5" ]; then
+      gpgmsg=`/usr/local/bin/gpg --verify /tmp/root-hints.sig /tmp/root-hints.zones 2>&1`
+      if [ $? != 0 ]; then
+         keyid=`echo $gpgmsg | /usr/bin/sed -n '/gpg:.*using DSA key /{s///;s/ .*//;p;}'`
+         /usr/local/bin/gpg --keyserver pgp.mit.edu --recv-key $keyid > /dev/null 2>&1
+         if [ $? != 0 ]; then
+            exit $?
+         else
+            /usr/local/bin/gpg --verify /tmp/root-hints.sig /tmp/root-hints.zones /dev/null 2>&1
+            if [ $? != 0 ]; then
+               exit $?
+            fi
+         fi
+      fi
+      /bin/mv /tmp/root-hints.zones /var/unbound/root-hints.zones && /usr/sbin/service local_unbound restart
+   fi
+fi
+rm -f /tmp/root-hints.md5 /tmp/root-hints.sig /tmp/root-hints.zones

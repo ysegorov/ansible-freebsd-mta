@@ -2,7 +2,7 @@
 
 - include_tasks: init.yml
 - include_tasks: sendmail.yml
-- include_tasks: unbound.yml
 - include_tasks: pf.yml
+- include_tasks: unbound.yml
 - include_tasks: update.yml
 - include_tasks: packages.yml

@@ -10,3 +10,6 @@ packages:
   - rsync
   - vnstat
   - ca_root_nss
+  - gnupg
+
+unbound_use_cloudflare_dns: no

@@ -12,7 +12,7 @@ table <martians> { 0.0.0.0/8 10.0.0.0/8 127.0.0.0/8 169.254.0.0/16     \
 #            203.0.113.0/24 !{{ "%s/%s"|format(ansible_facts.default_ipv4.network, ansible_facts.default_ipv4.netmask)|ipaddr('net') }} }
 
 tcp_ports_in = "{ www https smtp submission imaps {{ ansible_port }} }"
-tcp_ports_out = "{ www https smtp domain }"
+tcp_ports_out = "{ www https smtp domain 853 }"
 udp_ports = "{ domain ntp }"
 
 set block-policy drop

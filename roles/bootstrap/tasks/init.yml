@@ -4,7 +4,7 @@
   raw: "ASSUME_ALWAYS_YES=true pkg bootstrap"
 
 - name: Install python
-  raw: "ASSUME_ALWAYS_YES=true pkg install sqlite3 python3 py36-sqlite3"
+  raw: "ASSUME_ALWAYS_YES=true pkg install sqlite3 python3 py37-sqlite3"
 
 - name: Gather facts
   setup:
