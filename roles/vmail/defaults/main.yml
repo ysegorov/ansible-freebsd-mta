@@ -7,7 +7,7 @@ vmail_gid: 5000
 vmail_path: /var/vmail
 vmail_path_mode: 0750
 
-vmail_config_path: /etc/vmail
+vmail_config_path: /usr/local/etc/vmail
 vmail_config_owner: root
 vmail_config_group: wheel
 
