@@ -26,6 +26,9 @@
     - role: rspamd
       tags:
         - rspamd
+    - role: vmail
+      tags:
+        - vmail
     - role: acme
       tags:
         - acme

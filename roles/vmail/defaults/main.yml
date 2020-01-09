@@ -1,0 +1,15 @@
+---
+
+vmail_owner: vmail
+vmail_group: vmail
+vmail_uid: 5000
+vmail_gid: 5000
+vmail_path: /var/vmail
+vmail_path_mode: 0750
+
+vmail_config_path: /etc/vmail
+vmail_config_owner: root
+vmail_config_group: wheel
+
+vmail_sql_path: "{{ vmail_config_path }}/vmail.sql"
+vmail_sqlite_db_path: "{{ vmail_config_path }}/vmail.db"

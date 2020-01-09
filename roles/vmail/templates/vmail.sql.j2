@@ -1,0 +1,54 @@
+BEGIN TRANSACTION;
+
+CREATE TABLE IF NOT EXISTS domains (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    domain VARCHAR(255) NOT NULL
+);
+CREATE TABLE IF NOT EXISTS aliases (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    email VARCHAR(255) NOT NULL,
+    destination VARCHAR(255) NOT NULL
+);
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    uuid VARCHAR(64) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    uid INTEGER NOT NULL,
+    gid INTEGER NOT NULL,
+    home VARCHAR(255) NOT NULL
+);
+
+DELETE FROM users;
+DELETE FROM aliases;
+DELETE FROM domains;
+
+CREATE UNIQUE INDEX IF NOT EXISTS domain_idx ON domains (domain);
+CREATE UNIQUE INDEX IF NOT EXISTS alias_idx ON aliases (email);
+CREATE UNIQUE INDEX IF NOT EXISTS user_idx ON users (email);
+
+{% for vdomain in vmail -%}
+{% if vdomain.state|default('present') == 'present' %}
+
+{% set domain_postmaster = vdomain.postmaster|default(postmaster) %}
+INSERT INTO domains (domain) VALUES ('{{ vdomain.domain|mandatory }}');
+
+INSERT INTO aliases (email, destination) VALUES ('postmaster@{{ vdomain.domain }}', '{{ domain_postmaster }}');
+INSERT INTO aliases (email, destination) VALUES ('abuse@{{ vdomain.domain }}', '{{ domain_postmaster }}');
+
+{% for valias in vdomain.aliases|default([]) -%}
+{% if valias.state|default('present') == 'present' %}
+INSERT INTO aliases (email, destination) VALUES ('{{ valias.email }}', '{{ valias.dest }}');
+{% endif %}
+{%- endfor %}
+
+{% for vuser in vdomain.users|default([]) -%}
+{% if vuser.state|default('present') == 'present' %}
+INSERT INTO users (uuid, email, password, uid, gid, home) VALUES ('{{ vuser.email|to_uuid }}', '{{ vuser.email }}', '{{ vuser.encrypted_password if vuser.encrypted_password is defined else vuser.password|password_hash('blowfish') }}', {{ vmail_user.uid }}, {{ vmail_user.group }}, '{{ vmail_path }}/{{ vdomain.domain }}/{{ vuser.email }}');
+{% endif %}
+{%- endfor %}
+
+{% endif %}
+{%- endfor %}
+
+COMMIT;

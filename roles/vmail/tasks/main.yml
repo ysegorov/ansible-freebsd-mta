@@ -1,0 +1,61 @@
+---
+
+- name: Ensure virtual mail user group exists
+  group:
+    name: "{{ vmail_group }}"
+    gid: "{{ vmail_gid }}"
+    state: present
+
+- name: Ensure virtual mail user account exists
+  user:
+    name: "{{ vmail_owner }}"
+    group: "{{ vmail_group }}"
+    shell: "/sbin/nologin"
+    home: "{{ vmail_path }}"
+    create_home: no
+    uid: "{{ vmail_uid }}"
+  register: vmail_user
+
+- name: Ensure home directory for virtual mail user account exists
+  file:
+    path: "{{ vmail_path }}"
+    state: directory
+    mode: "{{ vmail_path_mode }}"
+    owner: "{{ vmail_owner }}"
+    group: "{{ vmail_group }}"
+
+- name: Ensure config directory for vmail exists
+  file:
+    path: "{{ vmail_config_path }}"
+    state: directory
+    mode: 0750
+    owner: "{{ vmail_config_owner }}"
+    group: "{{ vmail_config_group }}"
+
+- name: Copy vmail.sql script to load virtual users
+  template:
+    src: vmail.sql.j2
+    dest: "{{ vmail_sql_path }}"
+    mode: 0640
+    owner: "{{ vmail_config_owner }}"
+    group: "{{ vmail_config_group }}"
+
+- name: Create new sqlite3 database file containing virtual users
+  shell: "sqlite3 {{ vmail_sqlite_db_path }}.ng <{{ vmail_sql_path }}"
+
+- name: Update sqlite3 database file containing virtual users
+  copy:
+    src: "{{ vmail_sqlite_db_path }}.ng"
+    dest: "{{ vmail_sqlite_db_path }}"
+    remote_src: yes
+    mode: 0640
+    owner: "{{ vmail_config_owner }}"
+    group: "{{ vmail_config_group }}"
+
+- name: Remove temporary files
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - "{{ vmail_sql_path }}"
+    - "{{ vmail_sqlite_db_path }}.ng"
