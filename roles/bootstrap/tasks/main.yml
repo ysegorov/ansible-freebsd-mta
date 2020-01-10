@@ -1,8 +1,14 @@
 ---
 
-- include_tasks: init.yml
-- include_tasks: sendmail.yml
-- include_tasks: pf.yml
-- include_tasks: unbound.yml
-- include_tasks: update.yml
-- include_tasks: packages.yml
+- import_tasks: init.yml
+  tags: init
+- import_tasks: sendmail.yml
+  tags: sendmail
+- import_tasks: pf.yml
+  tags: pf
+- import_tasks: unbound.yml
+  tags: unbound
+- import_tasks: update.yml
+  tags: update
+- import_tasks: packages.yml
+  tags: packages

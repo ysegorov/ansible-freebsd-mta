@@ -7,3 +7,7 @@
   when:
     - packages is defined
     - packages|length > 0
+
+- name: Install/update ports collection
+  command:
+    cmd: portsnap auto

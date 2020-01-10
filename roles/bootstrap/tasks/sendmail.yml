@@ -1,12 +1,16 @@
 ---
 
-- name: Check sendmail service state
-  command: "sysrc -c sendmail_enable=NO"
-  register: sendmail_service_state
+- name: Disable sendmail service
+  command: "sysrc {{ item }}_enable=NO"
   ignore_errors: yes
   changed_when: no
+  loop:
+    - sendmail
+    - sendmail_submit
+    - sendmail_outbound
+    - sendmail_msp_queue
 
-- name: Disable sendmail service
-  command: "sysrc sendmail_enable=NO"
-  when:
-    - sendmail_service_state.failed
+- name: Ensure sendmail service is stopped
+  service:
+    name: sendmail
+    state: stopped

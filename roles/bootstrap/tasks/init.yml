@@ -8,6 +8,8 @@
 
 - name: Gather facts
   setup:
+  tags:
+    - always
 
 - name: Ensure we work with FreeBSD 12.x server
   assert:
