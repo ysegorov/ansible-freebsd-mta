@@ -1,0 +1,21 @@
+---
+
+postfix_deps:
+  - icu
+  - pcre
+
+postfix_conf_path: /usr/local/etc/postfix
+postfix_conf_file_mode: 0644
+postfix_conf_file_owner: root
+postfix_conf_file_group: wheel
+
+postfix_queue_dir: /var/spool/postfix
+postfix_mail_spool_dir: /var/mail/local
+
+postfix_cafile_path: /etc/ssl/cert.pem
+
+postfix_dhparam_512: /usr/local/etc/ssl/dh512.pem
+postfix_dhparam_2048: /usr/local/etc/ssl/dh2048.pem
+
+postfix_smtpd_sasl_path: "{{ postfix_queue_dir }}/private/auth"
+postfix_virtual_transport: "{{ postfix_queue_dir }}/private/dovecot-lmtp"

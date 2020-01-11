@@ -1,0 +1,78 @@
+---
+
+- name: Install postfix dependencies
+  pkgng:
+    name: "{{ postfix_deps }}"
+    state: present
+
+- name: Install postfix package
+  command:
+    cmd: |
+      make BATCH=1 WITH="SQLITE" install clean
+    chdir: /usr/ports/mail/postfix
+    creates: /usr/local/sbin/postconf
+
+- name: Create /usr/local/etc/mail directory
+  file:
+    path: /usr/local/etc/mail
+    mode: 0755
+    owner: root
+    group: wheel
+    state: directory
+
+- name: Copy mailer.conf provided by postfix distribution
+  copy:
+    src: /usr/local/share/postfix/mailer.conf.postfix
+    dest: /usr/local/etc/mail/mailer.conf
+    remote_src: yes
+    force: no
+    backup: yes
+    mode: 0644
+    owner: root
+    group: wheel
+
+- name: Create mail spool directory
+  file:
+    path: "{{ postfix_mail_spool_dir }}"
+    mode: 0775
+    owner: root
+    group: mail
+    state: directory
+
+- name: Generate 512 bit long dhparam file
+  command:
+    cmd: openssl dhparam -out {{ postfix_dhparam_512 }} 512
+    creates: "{{ postfix_dhparam_512 }}"
+
+- name: Generate 2048 bit long dhparam file
+  command:
+    cmd: openssl dhparam -out {{ postfix_dhparam_2048 }} 2048
+    creates: "{{ postfix_dhparam_2048 }}"
+
+- name: Copy postfix configuration files to config directory
+  template:
+    src: "{{ item }}"
+    dest: "{{ postfix_conf_path }}/{{ item|replace('.j2', '') }}"
+    mode: "{{ postfix_conf_file_mode }}"
+    owner: "{{ postfix_conf_file_owner }}"
+    group: "{{ postfix_conf_file_group }}"
+  loop:
+    - main.cf.j2
+    - master.cf.j2
+    - sqlite_virtual_mailbox_domains.cf.j2
+    - sqlite_virtual_mailbox_maps.cf.j2
+    - sqlite_virtual_alias_maps.cf.j2
+  notify:
+    - restart postfix
+
+- name: Generate local aliases database
+  command:
+    cmd: newaliases
+  notify:
+    - restart postfix
+
+- name: Ensure postfix is started and enabled
+  service:
+    name: postfix
+    state: started
+    enabled: yes

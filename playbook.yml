@@ -32,3 +32,6 @@
     - role: acme
       tags:
         - acme
+    - role: postfix
+      tags:
+        - postfix

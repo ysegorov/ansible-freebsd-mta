@@ -1,0 +1,3 @@
+# {{ ansible_managed }}
+dbpath = {{ vmail_sqlite_db_path }}
+query = SELECT home FROM users WHERE email = '%s';

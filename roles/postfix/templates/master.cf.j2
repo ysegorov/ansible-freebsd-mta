@@ -1,0 +1,12 @@
+# {{ ansible_managed }}
+
+# disable authentication on port 25. This port should only be used by other
+# mail servers
+smtp      inet  n       -       n       -       -       smtpd
+    -o smtpd_sasl_auth_enable=no
+
+# on the authenticated submission port, force TLS and use our more secure
+# cipher list
+submission inet n       -       n       -       -       smtpd
+    -o smtpd_tls_security_level=encrypt
+    -o tls_preempt_cipherlist=yes
