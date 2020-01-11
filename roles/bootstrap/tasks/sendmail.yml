@@ -14,3 +14,23 @@
   service:
     name: sendmail
     state: stopped
+
+- name: Ensure sendmail related features turned off in periodic.conf
+  lineinfile:
+    line: '{{ item.key }}="{{ item.value }}"'
+    regexp: '^{{ item.key }}'
+    path: /etc/periodic.conf.local
+    state: present
+    create: yes
+    mode: 0644
+    owner: root
+    group: wheel
+  loop:
+    - key: daily_clean_hoststat_enable
+      value: "NO"
+    - key: daily_status_mail_rejects_enable
+      value: "NO"
+    - key: daily_status_include_submit_mailq
+      value: "NO"
+    - key: daily_submit_queuerun
+      value: "NO"
