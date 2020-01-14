@@ -4,3 +4,9 @@
   service:
     name: postfix
     state: restarted
+
+- name: rebuild aliases
+  command:
+    cmd: newaliases
+  notify:
+    - restart postfix

@@ -4,6 +4,9 @@ postfix_deps:
   - icu
   - pcre
 
+postfix_user: postfix
+postfix_group: postfix
+
 postfix_conf_path: /usr/local/etc/postfix
 postfix_conf_file_mode: 0644
 postfix_conf_file_owner: root
