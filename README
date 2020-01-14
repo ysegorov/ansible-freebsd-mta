@@ -1,5 +1,9 @@
 # FreeBSD-based MTA
 
+## Sources
+
+https://www.c0ffee.net/blog/mail-server-guide/
+
 
 ## Prepare local host (controller to run playbook from)
 
