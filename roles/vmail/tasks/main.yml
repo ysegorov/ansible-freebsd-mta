@@ -28,7 +28,7 @@
   file:
     path: "{{ vmail_config_path }}"
     state: directory
-    mode: 0750
+    mode: 0755
     owner: "{{ vmail_config_owner }}"
     group: "{{ vmail_config_group }}"
 
@@ -48,7 +48,7 @@
     src: "{{ vmail_sqlite_db_path }}.ng"
     dest: "{{ vmail_sqlite_db_path }}"
     remote_src: yes
-    mode: 0640
+    mode: 0644
     owner: "{{ vmail_config_owner }}"
     group: "{{ vmail_config_group }}"
 
@@ -59,3 +59,17 @@
   loop:
     - "{{ vmail_sql_path }}"
     - "{{ vmail_sqlite_db_path }}.ng"
+
+- name: Update aliases database for vmail user
+  lineinfile:
+    path: /etc/aliases
+    line: "{{ vmail_owner }}:  root"
+    regexp: "^{{ vmail_owner }}"
+  notify: rebuild aliases
+
+- name: Update aliases database for root user
+  lineinfile:
+    path: /etc/aliases
+    line: "root:  {{ postmaster }}"
+    regexp: "^root"
+  notify: rebuild aliases
