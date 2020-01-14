@@ -1,0 +1,9 @@
+# {{ ansible_managed }}
+
+driver = sqlite
+connect = {{ vmail_sqlite_db_path }}
+
+default_pass_scheme = BLF-CRYPT
+
+password_query = SELECT email as user, password FROM users WHERE email = '%u'
+# user_query = SELECT home, uid, gid FROM users WHERE email = '%u'

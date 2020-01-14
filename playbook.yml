@@ -35,3 +35,6 @@
     - role: postfix
       tags:
         - postfix
+    - role: dovecot
+      tags:
+        - dovecot

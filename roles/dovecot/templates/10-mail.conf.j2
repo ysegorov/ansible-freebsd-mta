@@ -1,0 +1,13 @@
+# {{ ansible_managed }}
+
+mail_home = {{ vmail_path }}/%d/%n
+
+# see https://wiki2.dovecot.org/MailboxFormat
+mail_location = maildir:~/Maildir
+
+namespace inbox {
+  separator = /
+  inbox = yes
+}
+
+mail_privileged_group = {{ vmail_group }}

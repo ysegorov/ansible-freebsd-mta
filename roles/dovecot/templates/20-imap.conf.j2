@@ -1,0 +1,8 @@
+# {{ ansible_managed }}
+
+imap_idle_notify_interval = 29 mins
+
+protocol imap {
+  mail_max_userip_connections = 50
+  mail_plugins = $mail_plugins imap_sieve
+}

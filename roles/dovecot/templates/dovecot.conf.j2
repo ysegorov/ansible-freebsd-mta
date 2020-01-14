@@ -1,0 +1,9 @@
+# {{ ansible_managed }}
+
+protocols = imap lmtp
+
+first_valid_uid = {{ vmail_uid }}
+last_valid_uid = {{ vmail_uid }}
+
+!include conf.d/*.conf
+!include_try local.conf

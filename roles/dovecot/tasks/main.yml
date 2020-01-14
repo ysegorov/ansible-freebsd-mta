@@ -1,0 +1,150 @@
+---
+
+- name: Ensure proper sysctl params for dovecot
+  sysctl:
+    name: "{{ item.name }}"
+    value: "{{ item.value|default(omit) }}"
+    state: "{{ item.state|default('present') }}"
+  loop:
+    - name: security.bsd.see_other_uids
+      value: "1"
+    - name: security.bsd.see_other_gids
+      value: "1"
+    - name: security.bsd.hardlink_check_uid
+      value: "0"
+    - name: security.bsd.hardlink_check_gid
+      value: "0"
+
+- name: Install dovecot dependencies
+  pkgng:
+    name: "{{ dovecot_deps }}"
+    state: present
+
+- name: Install dovecot package
+  command:
+    cmd: |
+      make BATCH=1 WITH="LZ4 SQLITE ICU" install clean
+    chdir: /usr/ports/mail/dovecot
+    creates: /usr/local/bin/doveadm
+
+- name: Install dovecot-pigeonhole package
+  command:
+    cmd: "make BATCH=1 install clean"
+    chdir: /usr/ports/mail/dovecot-pigeonhole
+    creates: /usr/local/bin/sievec
+
+- name: Generate 4096 bit long dhparam file
+  command:
+    cmd: openssl dhparam -out {{ dovecot_dhparam_4096 }} 4096
+    creates: "{{ dovecot_dhparam_4096 }}"
+
+- name: Create dovecot runtime directory
+  file:
+    path: "{{ dovecot_runtime_path }}"
+    mode: 0755
+    owner: root
+    group: wheel
+    state: directory
+
+- name: Create dovecot configuration directories
+  file:
+    path: "{{ dovecot_conf_path }}/{{ item }}"
+    mode: 0755
+    owner: "{{ dovecot_conf_file_owner }}"
+    group: "{{ dovecot_conf_file_group }}"
+    state: directory
+  loop:
+    - conf.d
+    - sieve
+    - sieve-before.d
+    - sieve-after.d
+
+- name: Copy dovecot configuration files to top config directory
+  template:
+    src: "{{ item }}"
+    dest: "{{ dovecot_conf_path }}/{{ item|replace('.j2', '') }}"
+    mode: "{{ dovecot_conf_file_mode }}"
+    owner: "{{ dovecot_conf_file_owner }}"
+    group: "{{ dovecot_conf_file_group }}"
+  loop:
+    - dovecot.conf.j2
+    - sqlite.conf.ext.j2
+  notify:
+    - restart dovecot
+
+- name: Copy dovecot configuration files to conf.d directory
+  template:
+    src: "{{ item }}"
+    dest: "{{ dovecot_conf_path }}/conf.d/{{ item|replace('.j2', '') }}"
+    mode: "{{ dovecot_conf_file_mode }}"
+    owner: "{{ dovecot_conf_file_owner }}"
+    group: "{{ dovecot_conf_file_group }}"
+  loop:
+    - 10-auth.conf.j2
+    - 10-mail.conf.j2
+    - 10-master.conf.j2
+    - 10-ssl.conf.j2
+    - 15-lda.conf.j2
+    - 15-mailboxes.conf.j2
+    - 20-imap.conf.j2
+    - 20-lmtp.conf.j2
+    - 20-managesieve.conf.j2
+    - 90-imapsieve.conf.j2
+    - 90-sieve.conf.j2
+  notify:
+    - restart dovecot
+
+- name: Copy sieve scripts to sieve directory
+  copy:
+    src: "{{ item }}"
+    dest: "{{ dovecot_sieve_path }}/{{ item|replace('.j2', '') }}"
+    mode: "{{ dovecot_conf_file_mode }}"
+    owner: "{{ dovecot_conf_file_owner }}"
+    group: "{{ dovecot_conf_file_group }}"
+  loop:
+    - report-spam.sieve
+    - report-ham.sieve
+
+- name: Compile sieve scripts in sieve directory
+  command:
+    cmd: "sievec {{ item }}"
+  args:
+    chdir: "{{ dovecot_sieve_path }}"
+  loop:
+    - report-spam.sieve
+    - report-ham.sieve
+
+- name: Copy sieve scripts to sieve-before.d directory
+  copy:
+    src: "{{ item }}"
+    dest: "{{ dovecot_conf_path }}/sieve-before.d/{{ item|replace('.j2', '') }}"
+    mode: "{{ dovecot_conf_file_mode }}"
+    owner: "{{ dovecot_conf_file_owner }}"
+    group: "{{ dovecot_conf_file_group }}"
+  loop:
+    - 10-rspamd.sieve
+
+- name: Compile sieve scripts in sieve-before.d directory
+  command:
+    cmd: "sievec {{ item }}"
+  args:
+    chdir: "{{ dovecot_conf_path }}/sieve-before.d"
+  loop:
+    - 10-rspamd.sieve
+
+- name: Copy shell scripts to sieve directory
+  template:
+    src: "{{ item }}"
+    dest: "{{ dovecot_sieve_path }}/{{ item|replace('.j2', '') }}"
+    mode: 0755
+    owner: "{{ dovecot_conf_file_owner }}"
+    group: "{{ dovecot_conf_file_group }}"
+  loop:
+    - train-spam.sh.j2
+    - train-ham.sh.j2
+
+- name: Ensure dovecot is started and enabled
+  service:
+    name: dovecot
+    state: started
+    enabled: yes

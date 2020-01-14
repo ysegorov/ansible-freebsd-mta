@@ -1,0 +1,12 @@
+# {{ ansible_managed }}
+
+plugin {
+  sieve = file:~/sieve;active=~/.dovecot.sieve
+
+  sieve_before = {{ dovecot_conf_path }}/sieve-before.d
+  sieve_after  = {{ dovecot_conf_path }}/sieve-after.d
+
+  recipient_delimiter = +
+
+  sieve_quota_max_storage = 50M
+}

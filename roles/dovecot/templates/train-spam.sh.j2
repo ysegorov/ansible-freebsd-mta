@@ -1,0 +1,3 @@
+# {{ ansible_managed }}
+
+exec /usr/local/bin/rspamc -h {{ rspamd_controller_socket }} learn_spam

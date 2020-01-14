@@ -1,0 +1,57 @@
+# {{ ansible_managed }}
+
+mail_fsync = never
+
+service imap-login {
+  inet_listener imap {
+    port = 0
+  }
+
+  inet_listener imaps {
+    port = 993
+  }
+
+  # https://wiki.dovecot.org/LoginProcess
+  service_count = 0
+  process_min_avail = 2
+  vsz_limit = 1G
+}
+
+# disable POP3
+service pop3-login {
+  inet_listener pop3 {
+    port = 0
+  }
+  inet_listener pop3s {
+    port = 0
+  }
+}
+
+service imap {
+  service_count = 32
+  process_min_avail = 2
+}
+
+# LMTP socket for postfix to deliver mail
+service lmtp {
+  unix_listener {{ postfix_virtual_transport }} {
+    mode = 0600
+    user = {{ postfix_user }}
+    group = {{ postfix_group }}
+  }
+}
+
+# auth socket for postfix to authenticate users
+service auth {
+  client_limit = 1500
+  unix_listener {{ postfix_smtpd_sasl_path }} {
+    mode = 0660
+    user = {{ postfix_user }}
+    group = {{ postfix_group }}
+  }
+}
+
+# no need to run this as root
+service auth-worker {
+  user = {{ vmail_owner }}
+}

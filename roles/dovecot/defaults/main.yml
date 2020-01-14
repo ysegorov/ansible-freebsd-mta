@@ -1,0 +1,18 @@
+---
+
+dovecot_deps:
+  - pkgconf
+  - icu
+  - liblz4
+
+dovecot_conf_path: /usr/local/etc/dovecot
+dovecot_conf_file_mode: 0644
+dovecot_conf_file_owner: root
+dovecot_conf_file_group: dovecot
+
+dovecot_dhparam_4096: /usr/local/etc/ssl/dh4096.pem
+
+dovecot_runtime_path: /var/run/dovecot
+
+dovecot_sqlite_conf_path: "{{ dovecot_conf_path }}/sqlite.conf.ext"
+dovecot_sieve_path: "{{ dovecot_conf_path }}/sieve"

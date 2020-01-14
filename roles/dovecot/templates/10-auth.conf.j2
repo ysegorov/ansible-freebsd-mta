@@ -1,0 +1,18 @@
+# {{ ansible_managed }}
+
+auth_cache_size = 10M
+auth_cache_ttl = 1 hour
+auth_cache_negative_ttl = 1 hour
+
+auth_mechanisms = plain
+
+passdb {
+  driver = sql
+  args = {{ dovecot_sqlite_conf_path }}
+}
+
+# %d = domain, %n = user
+userdb {
+  driver = static
+  args = uid={{ vmail_owner }} gid={{ vmail_group }} home={{ vmail_path }}/%d/%n
+}

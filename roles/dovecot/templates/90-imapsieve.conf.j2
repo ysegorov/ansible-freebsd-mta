@@ -1,0 +1,19 @@
+# {{ ansible_managed }}
+
+# see https://wiki2.dovecot.org/HowTo/AntispamWithSieve
+
+plugin {
+  sieve_plugins = sieve_imapsieve sieve_extprograms
+  sieve_global_extensions = +vnd.dovecot.pipe +vnd.dovecot.environment
+
+  imapsieve_mailbox1_name = Junk
+  imapsieve_mailbox1_causes = COPY
+  imapsieve_mailbox1_before = file:{{ dovecot_sieve_path }}/report-spam.sieve
+
+  imapsieve_mailbox2_name = *
+  imapsieve_mailbox2_from = Junk
+  imapsieve_mailbox2_causes = COPY
+  imapsieve_mailbox2_before = file:{{ dovecot_sieve_path }}/report-ham.sieve
+
+  sieve_pipe_bin_dir = {{ dovecot_sieve_path }}
+}
