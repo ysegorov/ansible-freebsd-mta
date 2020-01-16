@@ -27,6 +27,14 @@
     owner: "{{ rspamd_conf_file_owner }}"
     group: "{{ rspamd_conf_file_group }}"
 
+- name: Ensure override.d configuration directory exists
+  file:
+    path: "{{ rspamd_override_path }}"
+    state: directory
+    mode: 0755
+    owner: "{{ rspamd_conf_file_owner }}"
+    group: "{{ rspamd_conf_file_group }}"
+
 - name: Copy configuration files to local.d diretory
   template:
     src: "{{ item }}"
@@ -38,6 +46,7 @@
     - worker-controller.inc.j2
     - worker-normal.inc.j2
     - worker-proxy.inc.j2
+    - logging.inc.j2
     - redis.conf.j2
     - dkim_signing.conf.j2
     - classifier-bayes.conf.j2
@@ -47,6 +56,18 @@
     - rbl.conf.j2
     - url_reputation.conf.j2
     - url_tags.conf.j2
+  notify:
+    - restart rspamd
+
+- name: Copy configuration files to override.d diretory
+  template:
+    src: "{{ item }}"
+    dest: "{{ rspamd_override_path }}/{{ item|replace('.j2', '') }}"
+    mode: "{{ rspamd_conf_file_mode }}"
+    owner: "{{ rspamd_conf_file_owner }}"
+    group: "{{ rspamd_conf_file_group }}"
+  loop:
+    - options.inc.j2
   notify:
     - restart rspamd
 

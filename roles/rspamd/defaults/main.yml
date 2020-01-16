@@ -14,6 +14,7 @@ dkim_keyfile_mode: 0640
 dkim_key_size: 1024
 
 rspamd_conf_path: "/usr/local/etc/rspamd/local.d"
+rspamd_override_path: "/usr/local/etc/rspamd/override.d"
 rspamd_conf_file_owner: root
 rspamd_conf_file_group: wheel
 rspamd_conf_file_mode: 0644
