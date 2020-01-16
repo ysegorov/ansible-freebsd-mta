@@ -15,7 +15,7 @@ mail_spool_directory = {{ postfix_mail_spool_dir }}
 myhostname = {{ hostname }}
 mydomain = {{ hostname }}
 myorigin = {{ hostname }}
-mydestination = {{ hostname }}, localhost
+mydestination = localhost
 
 #local_recipient_maps = unix:passwd.byname $alias_maps
 #local_recipient_maps = proxy:unix:passwd.byname $alias_maps
@@ -141,4 +141,5 @@ virtual_alias_maps = sqlite:/usr/local/etc/postfix/sqlite_virtual_alias_maps.cf
 milter_protocol = 6
 milter_default_action = accept
 smtpd_milters = unix:{{ rspamd_proxy_socket }}
+non_smtpd_milters = unix:{{ rspamd_proxy_socket }}
 milter_mail_macros = i {mail_addr} {client_addr} {client_name} {auth_authen}
