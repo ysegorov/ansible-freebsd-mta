@@ -3,3 +3,4 @@ config.yml
 secrets.yml
 vault_pass
 hosts
+dns/
