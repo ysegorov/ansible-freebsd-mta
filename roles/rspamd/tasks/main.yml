@@ -35,7 +35,7 @@
     owner: "{{ rspamd_conf_file_owner }}"
     group: "{{ rspamd_conf_file_group }}"
 
-- name: Copy configuration files to local.d diretory
+- name: Copy configuration files to local.d directory
   template:
     src: "{{ item }}"
     dest: "{{ rspamd_conf_path }}/{{ item|replace('.j2', '') }}"
@@ -59,7 +59,7 @@
   notify:
     - restart rspamd
 
-- name: Copy configuration files to override.d diretory
+- name: Copy configuration files to override.d directory
   template:
     src: "{{ item }}"
     dest: "{{ rspamd_override_path }}/{{ item|replace('.j2', '') }}"
